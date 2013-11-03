@@ -1,16 +1,18 @@
 tarjan queries:
 
 select relations.user2, count(*) as counted from relations
+where relation LIKE 'FRIEND_OF'
 group by relations.user2 
-==> save as incoming_rel
+==> save as friend_incoming_rel
 
 select relations.user1, count(*) as counted from relations
-group by relations.user1
-==> save as outgoing_rel
+where relation LIKE 'FRIEND_OF'
+group by relations.user1 
+==> save as friend_outgoing_rel
 
-select user1 as u from incoming_rel join outgoing_rel
+select user1 as u from friend_incoming_rel join friend_outgoing_rel
 where user1 = user2
-==> save as viable_nodes
+==> save as friend_viable_nodes
 
 select user1, user2 from relations_small r JOIN small_viable_nodes v JOIN small_viable_nodes w
 where user1 = v.u AND user2 = w.u

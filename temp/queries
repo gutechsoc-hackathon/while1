@@ -36,26 +36,32 @@ group by user1
   
   ) subQ
   
-  =>>  2.5104380212495667
+  ==>  2.5104380212495667
   
 2.C
   
 select count(distinct user1) from relations
 where user1 = user2
 
+ ==> 51
+
 2.D
 
-SELECT count(distinct user1) from relations_small,
+SELECT count(distinct user1) from relations,
 
-(SELECT user1 as u1, user2 as u2 from relations_small
+(SELECT user1 as u1, user2 as u2 from relations
 WHERE relation LIKE 'FRIEND_OF') subQ
 
 WHERE user1 = subQ.u2 AND user2 = subQ.u1 AND relation LIKE 'FRIEND_OF'
 
+ ==> :D
+
 2.E
 
 select max(subQ.averages) from 
-    (select count(user2) as averages from relations_small
+    (select count(user2) as averages from relations
      where relation LIKE 'DISLIKES'
      group by user2
      ) subQ
+	 
+==> 16(dislikes) - redo for userid
