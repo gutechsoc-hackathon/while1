@@ -1,23 +1,23 @@
 2.A
 
-select count(distinct subQ.u) as counted from
+SELECT COUNT(DISTINCT subQ.u) as counted FROM
 (
-select distinct user1 as u from relations
-union all
-select distinct user2 as u from relations
+SELECT DISTINCT user1 as u FROM relations
+UNION ALL
+SELECT DISTINCT user2 as u FROM relations
  ) subQ
  
  ==> 85000000
  
 2.B.1
 
-select avg(counted) from (
+SELECT avg(counted) FROM (
 
-select user1, count(*) as counted from relations
+SELECT user1, count(*) as counted FROM relations
 
-where  pmod(user1, 2) = 1
+WHERE  pmod(user1, 2) = 1
 
-group by user1
+GROUP BY user1
   
   ) subQ
   
@@ -26,13 +26,13 @@ group by user1
 
 2.B.2
 
-select avg(counted) from (
+SELECT avg(counted) FROM (
 
-select user1, count(*) as counted from relations
+SELECT user1, count(*) as counted FROM relations
 
-where  pmod(user1, 2) = 0
+WHERE  pmod(user1, 2) = 0
 
-group by user1
+GROUP BY user1
   
   ) subQ
   
@@ -40,28 +40,42 @@ group by user1
   
 2.C
   
-select count(distinct user1) from relations
-where user1 = user2
+SELECT count(distinct user1) FROM relations
+WHERE user1 = user2
 
- ==> 51
+ ==> 51 (~1 min, I)
 
 2.D
 
-SELECT count(distinct user1) from relations,
+SELECT count(*) FROM
+(
+SELECT u1, u2, count(*) as counted
+FROM
+(
+SELECT user1 as u1, user2 as u2 FROM relations_friends 
+UNION ALL
+SELECT user2 as u1, user1 as u2 FROM relations_friends
+) subQ  
+GROUP BY u1, u2
+  ) subQ2
+  WHERE counted = 2
 
-(SELECT user1 as u1, user2 as u2 from relations
-WHERE relation LIKE 'FRIEND_OF') subQ
-
-WHERE user1 = subQ.u2 AND user2 = subQ.u1 AND relation LIKE 'FRIEND_OF'
-
- ==> :D
+ ==> 9 -- 18
 
 2.E
 
-select max(subQ.averages) from 
-    (select count(user2) as averages from relations
-     where relation LIKE 'DISLIKES'
-     group by user2
+SELECT max(subQ.averages) FROM 
+    (SELECT count(user2) as averages FROM relations
+     WHERE relation LIKE 'DISLIKES'
+     GROUP BY user2
      ) subQ
 	 
-==> 16(dislikes) - redo for userid
+SELECT subQ.user2, subQ.counted
+FROM (select user2, count(*) as counted
+FROM relations
+WHERE relation LIKE 'DISLIKES'
+GROUP BY user2) subQ
+ORDER BY subQ.counted DESC
+LIMIT 1
+	 
+==> 16(dislikes) - redo for userid ======> 9103714224587318568 (7:20s)
