@@ -1,0 +1,61 @@
+2.A
+
+select count(distinct subQ.u) as counted from
+(
+select distinct user1 as u from relations
+union all
+select distinct user2 as u from relations
+ ) subQ
+ 
+ ==> 85000000
+ 
+2.B.1
+
+select avg(counted) from (
+
+select user1, count(*) as counted from relations
+
+where  pmod(user1, 2) = 1
+
+group by user1
+  
+  ) subQ
+  
+  ==> 2.5087862492798156  
+
+
+2.B.2
+
+select avg(counted) from (
+
+select user1, count(*) as counted from relations
+
+where  pmod(user1, 2) = 0
+
+group by user1
+  
+  ) subQ
+  
+  =>>  2.5104380212495667
+  
+2.C
+  
+select count(distinct user1) from relations
+where user1 = user2
+
+2.D
+
+SELECT count(distinct user1) from relations_small,
+
+(SELECT user1 as u1, user2 as u2 from relations_small
+WHERE relation LIKE 'FRIEND_OF') subQ
+
+WHERE user1 = subQ.u2 AND user2 = subQ.u1 AND relation LIKE 'FRIEND_OF'
+
+2.E
+
+select max(subQ.averages) from 
+    (select count(user2) as averages from relations_small
+     where relation LIKE 'DISLIKES'
+     group by user2
+     ) subQ
