@@ -1,21 +1,18 @@
 graph = {
-    'a':['b'],
-    'b':['c'],
-    'c':['d'],
-    'd':['e'],
-    'e':['f'],
-    'f':['j','g'],
-    'g':['h'],
-    'h':['i'],
-    'i':['a'],
-    'j':['a']
+'1':['1','2','3','4','5'],
+'2':['1','3'],
+'3':['4','5','6'],
+'4':['1','2'],
+'5':['3','4','6'],
+'6':['4','5','6'],
+'8':['8']
     }
 
 maxim = 0
 mem = 0
 
 def tarjan(graph):
-    result = []
+    #result = []
     stack = []
     low = {}    
     def visit(node):
@@ -40,13 +37,13 @@ def tarjan(graph):
                 mem = component
                 
             del stack[stack_pos:]
-            result.append(component)
+            #result.append(component)
             for item in component:
                 low[item] = len(graph)
             
     for node in graph:
         visit(node)
-    return result
+    #return result
 
-print tarjan(graph)
-print maxim, mem
+tarjan(graph)
+print mem
